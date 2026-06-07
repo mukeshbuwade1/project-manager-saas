@@ -242,7 +242,30 @@ export default function ProjectDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="relative flex items-start justify-between gap-4 flex-wrap">
+        {/* Mobile: icon buttons pinned to top-right */}
+        {canManage && (
+          <div className="md:hidden absolute top-0 right-0 flex items-center gap-2">
+            <button
+              onClick={openEditModal}
+              title="Edit Project"
+              className="w-8 h-8 flex items-center justify-center rounded border border-dark-border bg-dark-surface text-text-secondary hover:text-text-primary hover:bg-dark-elevated transition-default"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button
+              onClick={openTaskModal}
+              title="New Task"
+              className="w-8 h-8 flex items-center justify-center rounded bg-brand text-white hover:bg-brand/90 transition-default"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
+        )}
         <div className="flex items-start gap-3">
           <div
             className="w-3 h-3 rounded-full mt-1.5 shrink-0"
@@ -279,9 +302,9 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Action buttons — Admin/Manager only */}
+        {/* Action buttons — Desktop only */}
         {canManage && (
-          <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <Button variant="secondary" size="sm" onClick={openEditModal}>
               Edit Project
             </Button>
@@ -294,7 +317,7 @@ export default function ProjectDetailPage() {
 
       {/* View switcher + filters */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <div className="flex gap-1 bg-dark-elevated rounded-lg p-1 shrink-0">
+        <div className="hidden md:flex gap-1 bg-dark-elevated rounded-lg p-1 shrink-0">
           {['list', 'board'].map((v) => (
             <button
               key={v}
@@ -310,7 +333,7 @@ export default function ProjectDetailPage() {
           ))}
         </div>
 
-        <div className="flex gap-2 flex-wrap flex-1">
+        <div className="flex flex-col sm:flex-row gap-2 flex-1 w-full sm:w-auto">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -320,31 +343,33 @@ export default function ProjectDetailPage() {
               placeholder="Search tasks..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs bg-dark-surface border border-dark-border rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+              className="w-full sm:w-auto pl-8 pr-3 py-1.5 text-xs bg-dark-surface border border-dark-border rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
             />
           </div>
 
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="text-xs bg-dark-surface border border-dark-border rounded px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand"
-          >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
+          <div className="flex gap-2">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="flex-1 sm:flex-initial text-xs bg-dark-surface border border-dark-border rounded px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand"
+            >
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
 
-          <select
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            className="text-xs bg-dark-surface border border-dark-border rounded px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand"
-          >
-            <option value="">All Priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
+            <select
+              value={filterPriority}
+              onChange={(e) => setFilterPriority(e.target.value)}
+              className="flex-1 sm:flex-initial text-xs bg-dark-surface border border-dark-border rounded px-2 py-1.5 text-text-secondary focus:outline-none focus:border-brand"
+            >
+              <option value="">All Priorities</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -380,47 +405,79 @@ export default function ProjectDetailPage() {
           action={canManage && tasks.length === 0 ? { label: '+ New Task', onClick: () => setShowTaskModal(true) } : undefined}
         />
       ) : (
-        <div className="bg-dark-surface border border-dark-border rounded-lg overflow-hidden">
-          {/* Table header */}
-          <div className="grid grid-cols-[90px_1fr_130px_100px_110px_60px] gap-2 px-4 py-2.5 border-b border-dark-border bg-dark-elevated text-text-muted text-xs font-medium">
-            <span>ID</span>
-            <span>Title</span>
-            <span>Status</span>
-            <span>Priority</span>
-            <span>Due Date</span>
-            <span>Assignee</span>
+        <>
+          {/* Mobile: card layout */}
+          <div className="md:hidden space-y-2">
+            {filteredTasks.map((task) => (
+              <div
+                key={task._id || task.id}
+                onClick={() => navigate(`/tasks/${task._id || task.id}`)}
+                className="bg-dark-surface border border-dark-border rounded-lg p-3 cursor-pointer active:bg-dark-elevated transition-default"
+              >
+                <div className="flex items-start gap-2">
+                  <span className="text-text-muted text-xs font-mono mt-0.5 shrink-0">
+                    {task.identifier || `#${(task._id || task.id || '').slice(-4)}`}
+                  </span>
+                  <span className="text-text-primary text-sm font-medium flex-1 leading-snug">{task.title}</span>
+                  <Badge variant={task.priority || 'medium'} />
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant={task.status === 'in_progress' ? 'in_progress' : task.status === 'completed' ? 'completed' : 'pending'} />
+                  {task.dueDate && (
+                    <span className="text-text-muted text-xs">{formatDueDate(task.dueDate)}</span>
+                  )}
+                  {task.assignedTo && (
+                    <div className="ml-auto">
+                      <Avatar name={task.assignedTo.name || ''} src={task.assignedTo.avatar} size="sm" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-          {filteredTasks.map((task) => (
-            <div
-              key={task._id || task.id}
-              onClick={() => navigate(`/tasks/${task._id || task.id}`)}
-              className="grid grid-cols-[90px_1fr_130px_100px_110px_60px] gap-2 px-4 py-3 border-b border-dark-border last:border-0 hover:bg-dark-elevated cursor-pointer transition-default text-sm group"
-            >
-              <span className="text-text-muted text-xs font-mono self-center">
-                {task.identifier || `#${(task._id || task.id || '').slice(-4)}`}
-              </span>
-              <span className="text-text-primary self-center truncate group-hover:text-white transition-colors">
-                {task.title}
-              </span>
-              <span className="self-center">
-                <Badge variant={task.status === 'in_progress' ? 'in_progress' : task.status === 'completed' ? 'completed' : 'pending'} />
-              </span>
-              <span className="self-center">
-                <Badge variant={task.priority || 'medium'} />
-              </span>
-              <span className="text-text-muted text-xs self-center">
-                {task.dueDate ? formatDueDate(task.dueDate) : '—'}
-              </span>
-              <span className="self-center">
-                {task.assignedTo ? (
-                  <Avatar name={task.assignedTo.name || ''} src={task.assignedTo.avatar} size="sm" />
-                ) : (
-                  <span className="text-text-muted text-xs">—</span>
-                )}
-              </span>
+
+          {/* Desktop: table layout */}
+          <div className="hidden md:block bg-dark-surface border border-dark-border rounded-lg overflow-hidden">
+            <div className="grid grid-cols-[90px_1fr_130px_100px_110px_60px] gap-2 px-4 py-2.5 border-b border-dark-border bg-dark-elevated text-text-muted text-xs font-medium">
+              <span>ID</span>
+              <span>Title</span>
+              <span>Status</span>
+              <span>Priority</span>
+              <span>Due Date</span>
+              <span>Assignee</span>
             </div>
-          ))}
-        </div>
+            {filteredTasks.map((task) => (
+              <div
+                key={task._id || task.id}
+                onClick={() => navigate(`/tasks/${task._id || task.id}`)}
+                className="grid grid-cols-[90px_1fr_130px_100px_110px_60px] gap-2 px-4 py-3 border-b border-dark-border last:border-0 hover:bg-dark-elevated cursor-pointer transition-default text-sm group"
+              >
+                <span className="text-text-muted text-xs font-mono self-center">
+                  {task.identifier || `#${(task._id || task.id || '').slice(-4)}`}
+                </span>
+                <span className="text-text-primary self-center truncate group-hover:text-white transition-colors">
+                  {task.title}
+                </span>
+                <span className="self-center">
+                  <Badge variant={task.status === 'in_progress' ? 'in_progress' : task.status === 'completed' ? 'completed' : 'pending'} />
+                </span>
+                <span className="self-center">
+                  <Badge variant={task.priority || 'medium'} />
+                </span>
+                <span className="text-text-muted text-xs self-center">
+                  {task.dueDate ? formatDueDate(task.dueDate) : '—'}
+                </span>
+                <span className="self-center">
+                  {task.assignedTo ? (
+                    <Avatar name={task.assignedTo.name || ''} src={task.assignedTo.avatar} size="sm" />
+                  ) : (
+                    <span className="text-text-muted text-xs">—</span>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Create task modal */}
