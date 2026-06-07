@@ -19,6 +19,9 @@ import inviteRoutes from './routes/invites.js';
 
 const app = express();
 
+// Trust proxy headers from Render/load balancers (required for rate limiting behind a proxy)
+app.set('trust proxy', 1);
+
 // ─── Security Middleware ─────────────────────────────────────────────────────
 
 app.use(helmet());
